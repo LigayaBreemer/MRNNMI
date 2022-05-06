@@ -2031,7 +2031,7 @@ results_per_samp_third <- function(iterations, population, responserate80 = TRUE
   # Estimated proportions per data set
   # One column represents one data set
   MICE0_proportions <- with(MICE0_sets, table(y)/300)$analyses
-  MICE0_proportions <- matrix(unlist(MICE0_proportions), nrow = 3, ncol = M)
+  MICE0_proportions <- matrix(unlist(MICE0_proportions), nrow = 5, ncol = M)
   # Overall proportions:
   MICE0_avg_props <- rowMeans(MICE0_proportions)
   # SE using Rubin's rules:
@@ -2712,7 +2712,7 @@ results_per_samp_fourth <- function(iterations, population, responserate80 = TRU
   # Estimated proportions per data set
   # One column represents one data set
   MICE0_proportions <- with(MICE0_sets, table(y)/300)$analyses
-  MICE0_proportions <- matrix(unlist(MICE0_proportions), nrow = 3, ncol = M)
+  MICE0_proportions <- matrix(unlist(MICE0_proportions), nrow = 5, ncol = M)
   # Overall proportions:
   MICE0_avg_props <- rowMeans(MICE0_proportions)
   # SE using Rubin's rules:
