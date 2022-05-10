@@ -9,6 +9,9 @@ load("~/SSLBS/Thesis/Thesis/pop1.RData")
 
 original_proportions <- table(population$y)/nrow(population)
 
+# function for calculating confidence intervals of the coverage rates
+CI <- function(x) c(x - 1.96*sqrt(x*(1-x)/2500), x + 1.96*sqrt(x*(1-x)/2500))
+
 ### MRNNI ###
 MRNNI5_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[1]][[1]])}))
 MRNNI5_avg_props <- t(matrix(MRNNI5_avg_props, nrow = 3)) # every column is one outcome category
@@ -18,8 +21,7 @@ SE_MRNNI5 <- t(matrix(SE_MRNNI5, nrow = 3)) # every column is one outcome catego
 MRNNI5_ASE <- colMeans(SE_MRNNI5) # average standard errors
 within_MRNNI5 <- unlist(lapply(population1_response80, function(x){unlist(x[[1]][[7]])}))
 MRNNI5_CR <- sum(within_MRNNI5)/1500 # coverage rate
-MRNNI5_CI <- c(MRNNI5_CR - MRNNI5_CR*(1-MRNNI5_CR)/1500, 
-               MRNNI5_CR + MRNNI5_CR*(1-MRNNI5_CR)/1500) # confidence interval for the CR
+MRNNI5_CI <- CI(MRNNI5_CR)
 
 MRNNI10_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[1]][[2]])}))
 MRNNI10_avg_props <- t(matrix(MRNNI10_avg_props, nrow = 3)) # every column is one outcome category
@@ -29,8 +31,7 @@ SE_MRNNI10 <- t(matrix(SE_MRNNI10, nrow = 3)) # every column is one outcome cate
 MRNNI10_ASE <- colMeans(SE_MRNNI10) # average standard errors
 within_MRNNI10 <- unlist(lapply(population1_response80, function(x){unlist(x[[1]][[8]])}))
 MRNNI10_CR <- sum(within_MRNNI10)/1500 # coverage rate
-MRNNI10_CI <- c(MRNNI10_CR - MRNNI10_CR*(1-MRNNI10_CR)/1500, 
-               MRNNI10_CR + MRNNI10_CR*(1-MRNNI10_CR)/1500) # confidence interval for the CR
+MRNNI10_CI <- CI(MRNNI10_CR)
 
 MRNNI20_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[1]][[3]])}))
 MRNNI20_avg_props <- t(matrix(MRNNI20_avg_props, nrow = 3)) # every column is one outcome category
@@ -40,8 +41,7 @@ SE_MRNNI20 <- t(matrix(SE_MRNNI20, nrow = 3)) # every column is one outcome cate
 MRNNI20_ASE <- colMeans(SE_MRNNI20) # average standard errors
 within_MRNNI20 <- unlist(lapply(population1_response80, function(x){unlist(x[[1]][[9]])}))
 MRNNI20_CR <- sum(within_MRNNI20)/1500 # coverage rate
-MRNNI20_CI <- c(MRNNI20_CR - MRNNI20_CR*(1-MRNNI20_CR)/1500, 
-               MRNNI20_CR + MRNNI20_CR*(1-MRNNI20_CR)/1500) # confidence interval for the CR
+MRNNI20_CI <- CI(MRNNI20_CR)
 
 ### DRNNI ###
 DRNNI5_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[2]][[1]])}))
@@ -52,8 +52,7 @@ SE_DRNNI5 <- t(matrix(SE_DRNNI5, nrow = 3)) # every column is one outcome catego
 DRNNI5_ASE <- colMeans(SE_DRNNI5) # average standard errors
 within_DRNNI5 <- unlist(lapply(population1_response80, function(x){unlist(x[[2]][[7]])}))
 DRNNI5_CR <- sum(within_DRNNI5)/1500 # coverage rate
-DRNNI5_CI <- c(DRNNI5_CR - DRNNI5_CR*(1-DRNNI5_CR)/1500, 
-               DRNNI5_CR + DRNNI5_CR*(1-DRNNI5_CR)/1500) # confidence interval for the CR
+DRNNI5_CI <- CI(DRNNI5_CR)
 
 DRNNI10_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[2]][[2]])}))
 DRNNI10_avg_props <- t(matrix(DRNNI10_avg_props, nrow = 3)) # every column is one outcome category
@@ -63,8 +62,7 @@ SE_DRNNI10 <- t(matrix(SE_DRNNI10, nrow = 3)) # every column is one outcome cate
 DRNNI10_ASE <- colMeans(SE_DRNNI10) # average standard errors
 within_DRNNI10 <- unlist(lapply(population1_response80, function(x){unlist(x[[2]][[8]])}))
 DRNNI10_CR <- sum(within_DRNNI10)/1500 # coverage rate
-DRNNI10_CI <- c(DRNNI10_CR - DRNNI10_CR*(1-DRNNI10_CR)/1500, 
-               DRNNI10_CR + DRNNI10_CR*(1-DRNNI10_CR)/1500) # confidence interval for the CR
+DRNNI10_CI <- CI(DRNNI10_CR)
 
 DRNNI20_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[2]][[3]])}))
 DRNNI20_avg_props <- t(matrix(DRNNI20_avg_props, nrow = 3)) # every column is one outcome category
@@ -74,8 +72,7 @@ SE_DRNNI20 <- t(matrix(SE_DRNNI20, nrow = 3)) # every column is one outcome cate
 DRNNI20_ASE <- colMeans(SE_DRNNI20) # average standard errors
 within_DRNNI20 <- unlist(lapply(population1_response80, function(x){unlist(x[[2]][[9]])}))
 DRNNI20_CR <- sum(within_DRNNI20)/1500 # coverage rate
-DRNNI20_CI <- c(DRNNI20_CR - DRNNI20_CR*(1-DRNNI20_CR)/1500, 
-               DRNNI20_CR + DRNNI20_CR*(1-DRNNI20_CR)/1500) # confidence interval for the CR
+DRNNI20_CI <- CI(DRNNI20_CR)
 
 ### MICE ###
 MICE5_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[3]][[1]])}))
@@ -86,8 +83,7 @@ SE_MICE5 <- t(matrix(SE_MICE5, nrow = 3)) # every column is one outcome category
 MICE5_ASE <- colMeans(SE_MICE5) # average standard errors
 within_MICE5 <- unlist(lapply(population1_response80, function(x){unlist(x[[3]][[7]])}))
 MICE5_CR <- sum(within_MICE5)/1500 # coverage rate
-MICE5_CI <- c(MICE5_CR - MICE5_CR*(1-MICE5_CR)/1500, 
-               MICE5_CR + MICE5_CR*(1-MICE5_CR)/1500) # confidence interval for the CR
+MICE5_CI <- CI(MICE5_CR)
 
 MICE10_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[3]][[2]])}))
 MICE10_avg_props <- t(matrix(MICE10_avg_props, nrow = 3)) # every column is one outcome category
@@ -97,8 +93,7 @@ SE_MICE10 <- t(matrix(SE_MICE10, nrow = 3)) # every column is one outcome catego
 MICE10_ASE <- colMeans(SE_MICE10) # average standard errors
 within_MICE10 <- unlist(lapply(population1_response80, function(x){unlist(x[[3]][[8]])}))
 MICE10_CR <- sum(within_MICE10)/1500 # coverage rate
-MICE10_CI <- c(MICE10_CR - MICE10_CR*(1-MICE10_CR)/1500, 
-               MICE10_CR + MICE10_CR*(1-MICE10_CR)/1500) # confidence interval for the CR
+MICE10_CI <- CI(MICE10_CR)
 
 MICE20_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[3]][[3]])}))
 MICE20_avg_props <- t(matrix(MICE20_avg_props, nrow = 3)) # every column is one outcome category
@@ -108,8 +103,7 @@ SE_MICE20 <- t(matrix(SE_MICE20, nrow = 3)) # every column is one outcome catego
 MICE20_ASE <- colMeans(SE_MICE20) # average standard errors
 within_MICE20 <- unlist(lapply(population1_response80, function(x){unlist(x[[3]][[9]])}))
 MICE20_CR <- sum(within_MICE20)/1500 # coverage rate
-MICE20_CI <- c(MICE20_CR - MICE20_CR*(1-MICE20_CR)/1500, 
-               MICE20_CR + MICE20_CR*(1-MICE20_CR)/1500) # confidence interval for the CR
+MICE20_CI <- CI(MICE20_CR)
 
 results_pop1res80 <- list(original_proportions, 
                           MRNNI5_AEP, MRNNI5_ASE, MRNNI5_CR, MRNNI5_CI,
@@ -135,8 +129,7 @@ SE_MRNNI5 <- t(matrix(SE_MRNNI5, nrow = 3)) # every column is one outcome catego
 MRNNI5_ASE <- colMeans(SE_MRNNI5) # average standard errors
 within_MRNNI5 <- unlist(lapply(population1_response90, function(x){unlist(x[[1]][[7]])}))
 MRNNI5_CR <- sum(within_MRNNI5)/1500 # coverage rate
-MRNNI5_CI <- c(MRNNI5_CR - MRNNI5_CR*(1-MRNNI5_CR)/1500, 
-               MRNNI5_CR + MRNNI5_CR*(1-MRNNI5_CR)/1500) # confidence interval for the CR
+MRNNI5_CI <- CI(MRNNI5_CR)
 
 MRNNI10_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[1]][[2]])}))
 MRNNI10_avg_props <- t(matrix(MRNNI10_avg_props, nrow = 3)) # every column is one outcome category
@@ -146,8 +139,7 @@ SE_MRNNI10 <- t(matrix(SE_MRNNI10, nrow = 3)) # every column is one outcome cate
 MRNNI10_ASE <- colMeans(SE_MRNNI10) # average standard errors
 within_MRNNI10 <- unlist(lapply(population1_response90, function(x){unlist(x[[1]][[8]])}))
 MRNNI10_CR <- sum(within_MRNNI10)/1500 # coverage rate
-MRNNI10_CI <- c(MRNNI10_CR - MRNNI10_CR*(1-MRNNI10_CR)/1500, 
-               MRNNI10_CR + MRNNI10_CR*(1-MRNNI10_CR)/1500) # confidence interval for the CR
+MRNNI10_CI <- CI(MRNNI10_CR)
 
 MRNNI20_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[1]][[3]])}))
 MRNNI20_avg_props <- t(matrix(MRNNI20_avg_props, nrow = 3)) # every column is one outcome category
@@ -157,8 +149,7 @@ SE_MRNNI20 <- t(matrix(SE_MRNNI20, nrow = 3)) # every column is one outcome cate
 MRNNI20_ASE <- colMeans(SE_MRNNI20) # average standard errors
 within_MRNNI20 <- unlist(lapply(population1_response90, function(x){unlist(x[[1]][[9]])}))
 MRNNI20_CR <- sum(within_MRNNI20)/1500 # coverage rate
-MRNNI20_CI <- c(MRNNI20_CR - MRNNI20_CR*(1-MRNNI20_CR)/1500, 
-               MRNNI20_CR + MRNNI20_CR*(1-MRNNI20_CR)/1500) # confidence interval for the CR
+MRNNI20_CI <- CI(MRNNI20_CR)
 
 ### DRNNI ###
 DRNNI5_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[2]][[1]])}))
@@ -169,8 +160,7 @@ SE_DRNNI5 <- t(matrix(SE_DRNNI5, nrow = 3)) # every column is one outcome catego
 DRNNI5_ASE <- colMeans(SE_DRNNI5) # average standard errors
 within_DRNNI5 <- unlist(lapply(population1_response90, function(x){unlist(x[[2]][[7]])}))
 DRNNI5_CR <- sum(within_DRNNI5)/1500 # coverage rate
-DRNNI5_CI <- c(DRNNI5_CR - DRNNI5_CR*(1-DRNNI5_CR)/1500, 
-               DRNNI5_CR + DRNNI5_CR*(1-DRNNI5_CR)/1500) # confidence interval for the CR
+DRNNI5_CI <- CI(DRNNI5_CR)
 
 DRNNI10_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[2]][[2]])}))
 DRNNI10_avg_props <- t(matrix(DRNNI10_avg_props, nrow = 3)) # every column is one outcome category
@@ -180,8 +170,7 @@ SE_DRNNI10 <- t(matrix(SE_DRNNI10, nrow = 3)) # every column is one outcome cate
 DRNNI10_ASE <- colMeans(SE_DRNNI10) # average standard errors
 within_DRNNI10 <- unlist(lapply(population1_response90, function(x){unlist(x[[2]][[8]])}))
 DRNNI10_CR <- sum(within_DRNNI10)/1500 # coverage rate
-DRNNI10_CI <- c(DRNNI10_CR - DRNNI10_CR*(1-DRNNI10_CR)/1500, 
-               DRNNI10_CR + DRNNI10_CR*(1-DRNNI10_CR)/1500) # confidence interval for the CR
+DRNNI10_CI <- CI(DRNNI10_CR)
 
 DRNNI20_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[2]][[3]])}))
 DRNNI20_avg_props <- t(matrix(DRNNI20_avg_props, nrow = 3)) # every column is one outcome category
@@ -191,8 +180,7 @@ SE_DRNNI20 <- t(matrix(SE_DRNNI20, nrow = 3)) # every column is one outcome cate
 DRNNI20_ASE <- colMeans(SE_DRNNI20) # average standard errors
 within_DRNNI20 <- unlist(lapply(population1_response90, function(x){unlist(x[[2]][[9]])}))
 DRNNI20_CR <- sum(within_DRNNI20)/1500 # coverage rate
-DRNNI20_CI <- c(DRNNI20_CR - DRNNI20_CR*(1-DRNNI20_CR)/1500, 
-               DRNNI20_CR + DRNNI20_CR*(1-DRNNI20_CR)/1500) # confidence interval for the CR
+DRNNI20_CI <- CI(DRNNI20_CR)
 
 ### MICE ###
 MICE5_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[3]][[1]])}))
@@ -203,8 +191,7 @@ SE_MICE5 <- t(matrix(SE_MICE5, nrow = 3)) # every column is one outcome category
 MICE5_ASE <- colMeans(SE_MICE5) # average standard errors
 within_MICE5 <- unlist(lapply(population1_response90, function(x){unlist(x[[3]][[7]])}))
 MICE5_CR <- sum(within_MICE5)/1500 # coverage rate
-MICE5_CI <- c(MICE5_CR - MICE5_CR*(1-MICE5_CR)/1500, 
-               MICE5_CR + MICE5_CR*(1-MICE5_CR)/1500) # confidence interval for the CR
+MICE5_CI <- CI(MICE5_CR)
 
 MICE10_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[3]][[2]])}))
 MICE10_avg_props <- t(matrix(MICE10_avg_props, nrow = 3)) # every column is one outcome category
@@ -214,8 +201,7 @@ SE_MICE10 <- t(matrix(SE_MICE10, nrow = 3)) # every column is one outcome catego
 MICE10_ASE <- colMeans(SE_MICE10) # average standard errors
 within_MICE10 <- unlist(lapply(population1_response90, function(x){unlist(x[[3]][[8]])}))
 MICE10_CR <- sum(within_MICE10)/1500 # coverage rate
-MICE10_CI <- c(MICE10_CR - MICE10_CR*(1-MICE10_CR)/1500, 
-               MICE10_CR + MICE10_CR*(1-MICE10_CR)/1500) # confidence interval for the CR
+MICE10_CI <- CI(MICE10_CR)
 
 MICE20_avg_props <- unlist(lapply(population1_response90, function(x){unlist(x[[3]][[3]])}))
 MICE20_avg_props <- t(matrix(MICE20_avg_props, nrow = 3)) # every column is one outcome category
@@ -225,8 +211,7 @@ SE_MICE20 <- t(matrix(SE_MICE20, nrow = 3)) # every column is one outcome catego
 MICE20_ASE <- colMeans(SE_MICE20) # average standard errors
 within_MICE20 <- unlist(lapply(population1_response90, function(x){unlist(x[[3]][[9]])}))
 MICE20_CR <- sum(within_MICE20)/1500 # coverage rate
-MICE20_CI <- c(MICE20_CR - MICE20_CR*(1-MICE20_CR)/1500, 
-               MICE20_CR + MICE20_CR*(1-MICE20_CR)/1500) # confidence interval for the CR
+MICE20_CI <- CI(MICE20_CR)
 
 results_pop1res90 <- list(original_proportions, 
                           MRNNI5_AEP, MRNNI5_ASE, MRNNI5_CR, MRNNI5_CI,
