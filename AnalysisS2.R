@@ -9,6 +9,9 @@ load("~/SSLBS/Thesis/Thesis/pop4.RData")
 
 original_proportions <- table(population$y)/nrow(population)
 
+# function for calculating confidence intervals of the coverage rates
+CI <- function(x) c(x - 1.96*sqrt(x*(1-x)/2500), x + 1.96*sqrt(x*(1-x)/2500))
+
 ### MRNNI ###
 MRNN10_avg_props <- unlist(lapply(population4_response80, function(x){unlist(x[[1]][[1]])}))
 MRNN10_avg_props <- t(matrix(MRNN10_avg_props, nrow = 5)) # every column is one outcome category
@@ -18,8 +21,7 @@ SE_MRNN10 <- t(matrix(SE_MRNN10, nrow = 5)) # every column is one outcome catego
 MRNN10_ASE <- colMeans(SE_MRNN10) # average standard errors
 within_MRNN10 <- unlist(lapply(population4_response80, function(x){unlist(x[[1]][[7]])}))
 MRNN10_CR <- sum(within_MRNN10)/2500 # coverage rate
-MRNN10_CI <- c(MRNN10_CR - MRNN10_CR*(1-MRNN10_CR)/2500,
-               MRNN10_CR + MRNN10_CR*(1-MRNN10_CR)/2500) # confidence interval for the CR
+MRNN10_CI <- CI(MRNN10_CR)
 
 MRNN01_avg_props <- unlist(lapply(population4_response80, function(x){unlist(x[[1]][[2]])}))
 MRNN01_avg_props <- t(matrix(MRNN01_avg_props, nrow = 5)) # every column is one outcome category
@@ -29,8 +31,7 @@ SE_MRNN01 <- t(matrix(SE_MRNN01, nrow = 5)) # every column is one outcome catego
 MRNN01_ASE <- colMeans(SE_MRNN01) # average standard errors
 within_MRNN01 <- unlist(lapply(population4_response80, function(x){unlist(x[[1]][[8]])}))
 MRNN01_CR <- sum(within_MRNN01)/2500 # coverage rate
-MRNN01_CI <- c(MRNN01_CR - MRNN01_CR*(1-MRNN01_CR)/2500,
-               MRNN01_CR + MRNN01_CR*(1-MRNN01_CR)/2500) # confidence interval for the CR
+MRNN01_CI <- CI(MRNN01_CR)
 
 MRNN00_avg_props <- unlist(lapply(population4_response80, function(x){unlist(x[[1]][[3]])}))
 MRNN00_avg_props <- t(matrix(MRNN00_avg_props, nrow = 5)) # every column is one outcome category
@@ -40,8 +41,7 @@ SE_MRNN00 <- t(matrix(SE_MRNN00, nrow = 5)) # every column is one outcome catego
 MRNN00_ASE <- colMeans(SE_MRNN00) # average standard errors
 within_MRNN00 <- unlist(lapply(population4_response80, function(x){unlist(x[[1]][[9]])}))
 MRNN00_CR <- sum(within_MRNN00)/2500 # coverage rate
-MRNN00_CI <- c(MRNN00_CR - MRNN00_CR*(1-MRNN00_CR)/2500,
-               MRNN00_CR + MRNN00_CR*(1-MRNN00_CR)/2500) # confidence interval for the CR
+MRNN00_CI <- CI(MRNN00_CR)
 
 ### DRNNI ###
 DRNN10_avg_props <- unlist(lapply(population4_response80, function(x){unlist(x[[2]][[1]])}))
@@ -52,8 +52,7 @@ SE_DRNN10 <- t(matrix(SE_DRNN10, nrow = 5)) # every column is one outcome catego
 DRNN10_ASE <- colMeans(SE_DRNN10) # average standard errors
 within_DRNN10 <- unlist(lapply(population4_response80, function(x){unlist(x[[2]][[7]])}))
 DRNN10_CR <- sum(within_DRNN10)/2500 # coverage rate
-DRNN10_CI <- c(DRNN10_CR - DRNN10_CR*(1-DRNN10_CR)/2500,
-               DRNN10_CR + DRNN10_CR*(1-DRNN10_CR)/2500) # confidence interval for the CR
+DRNN10_CI <- CI(DRNN10_CR)
 
 DRNN01_avg_props <- unlist(lapply(population4_response80, function(x){unlist(x[[2]][[2]])}))
 DRNN01_avg_props <- t(matrix(DRNN01_avg_props, nrow = 5)) # every column is one outcome category
@@ -63,8 +62,7 @@ SE_DRNN01 <- t(matrix(SE_DRNN01, nrow = 5)) # every column is one outcome catego
 DRNN01_ASE <- colMeans(SE_DRNN01) # average standard errors
 within_DRNN01 <- unlist(lapply(population4_response80, function(x){unlist(x[[2]][[8]])}))
 DRNN01_CR <- sum(within_DRNN01)/2500 # coverage rate
-DRNN01_CI <- c(DRNN01_CR - DRNN01_CR*(1-DRNN01_CR)/2500,
-               DRNN01_CR + DRNN01_CR*(1-DRNN01_CR)/2500) # confidence interval for the CR
+DRNN01_CI <- CI(DRNN01_CR)
 
 DRNN00_avg_props <- unlist(lapply(population4_response80, function(x){unlist(x[[2]][[3]])}))
 DRNN00_avg_props <- t(matrix(DRNN00_avg_props, nrow = 5)) # every column is one outcome category
@@ -74,8 +72,7 @@ SE_DRNN00 <- t(matrix(SE_DRNN00, nrow = 5)) # every column is one outcome catego
 DRNN00_ASE <- colMeans(SE_DRNN00) # average standard errors
 within_DRNN00 <- unlist(lapply(population4_response80, function(x){unlist(x[[2]][[9]])}))
 DRNN00_CR <- sum(within_DRNN00)/2500 # coverage rate
-DRNN00_CI <- c(DRNN00_CR - DRNN00_CR*(1-DRNN00_CR)/2500,
-               DRNN00_CR + DRNN00_CR*(1-DRNN00_CR)/2500) # confidence interval for the CR
+DRNN00_CI <- CI(DRNN00_CR)
 
 ### MICE ###
 
@@ -87,8 +84,7 @@ SE_MICE0 <- t(matrix(SE_MICE0, nrow = 5)) # every column is one outcome category
 MICE0_ASE <- colMeans(SE_MICE0) # average standard errors
 within_MICE0 <- unlist(lapply(population4_response80, function(x){unlist(x[[3]][[3]])}))
 MICE0_CR <- sum(within_MICE0)/2500 # coverage rate
-MICE0_CI <- c(MICE0_CR - MICE0_CR*(1-MICE0_CR)/2500,
-               MICE0_CR + MICE0_CR*(1-MICE0_CR)/2500) # confidence interval for the CR
+MICE0_CI <- CI(MICE0_CR)
 
 results_S2pop4res80 <- list(original_proportions, 
                           MRNN10_AEP, MRNN10_ASE, MRNN10_CR, MRNN10_CI,
@@ -112,8 +108,7 @@ SE_MRNN10 <- t(matrix(SE_MRNN10, nrow = 5)) # every column is one outcome catego
 MRNN10_ASE <- colMeans(SE_MRNN10) # average standard errors
 within_MRNN10 <- unlist(lapply(population4_response90, function(x){unlist(x[[1]][[7]])}))
 MRNN10_CR <- sum(within_MRNN10)/2500 # coverage rate
-MRNN10_CI <- c(MRNN10_CR - MRNN10_CR*(1-MRNN10_CR)/2500,
-               MRNN10_CR + MRNN10_CR*(1-MRNN10_CR)/2500) # confidence interval for the CR
+MRNN10_CI <- CI(MRNN10_CR)
 
 MRNN01_avg_props <- unlist(lapply(population4_response90, function(x){unlist(x[[1]][[2]])}))
 MRNN01_avg_props <- t(matrix(MRNN01_avg_props, nrow = 5)) # every column is one outcome category
@@ -123,8 +118,7 @@ SE_MRNN01 <- t(matrix(SE_MRNN01, nrow = 5)) # every column is one outcome catego
 MRNN01_ASE <- colMeans(SE_MRNN01) # average standard errors
 within_MRNN01 <- unlist(lapply(population4_response90, function(x){unlist(x[[1]][[8]])}))
 MRNN01_CR <- sum(within_MRNN01)/2500 # coverage rate
-MRNN01_CI <- c(MRNN01_CR - MRNN01_CR*(1-MRNN01_CR)/2500,
-               MRNN01_CR + MRNN01_CR*(1-MRNN01_CR)/2500) # confidence interval for the CR
+MRNN01_CI <- CI(MRNN01_CR)
 
 MRNN00_avg_props <- unlist(lapply(population4_response90, function(x){unlist(x[[1]][[3]])}))
 MRNN00_avg_props <- t(matrix(MRNN00_avg_props, nrow = 5)) # every column is one outcome category
@@ -134,8 +128,7 @@ SE_MRNN00 <- t(matrix(SE_MRNN00, nrow = 5)) # every column is one outcome catego
 MRNN00_ASE <- colMeans(SE_MRNN00) # average standard errors
 within_MRNN00 <- unlist(lapply(population4_response90, function(x){unlist(x[[1]][[9]])}))
 MRNN00_CR <- sum(within_MRNN00)/2500 # coverage rate
-MRNN00_CI <- c(MRNN00_CR - MRNN00_CR*(1-MRNN00_CR)/2500,
-               MRNN00_CR + MRNN00_CR*(1-MRNN00_CR)/2500) # confidence interval for the CR
+MRNN00_CI <- CI(MRNN00_CR)
 
 ### DRNNI ###
 DRNN10_avg_props <- unlist(lapply(population4_response90, function(x){unlist(x[[2]][[1]])}))
@@ -146,8 +139,7 @@ SE_DRNN10 <- t(matrix(SE_DRNN10, nrow = 5)) # every column is one outcome catego
 DRNN10_ASE <- colMeans(SE_DRNN10) # average standard errors
 within_DRNN10 <- unlist(lapply(population4_response90, function(x){unlist(x[[2]][[7]])}))
 DRNN10_CR <- sum(within_DRNN10)/2500 # coverage rate
-DRNN10_CI <- c(DRNN10_CR - DRNN10_CR*(1-DRNN10_CR)/2500,
-               DRNN10_CR + DRNN10_CR*(1-DRNN10_CR)/2500) # confidence interval for the CR
+DRNN10_CI <- CI(DRNN10_CR)
 
 DRNN01_avg_props <- unlist(lapply(population4_response90, function(x){unlist(x[[2]][[2]])}))
 DRNN01_avg_props <- t(matrix(DRNN01_avg_props, nrow = 5)) # every column is one outcome category
@@ -157,8 +149,7 @@ SE_DRNN01 <- t(matrix(SE_DRNN01, nrow = 5)) # every column is one outcome catego
 DRNN01_ASE <- colMeans(SE_DRNN01) # average standard errors
 within_DRNN01 <- unlist(lapply(population4_response90, function(x){unlist(x[[2]][[8]])}))
 DRNN01_CR <- sum(within_DRNN01)/2500 # coverage rate
-DRNN01_CI <- c(DRNN01_CR - DRNN01_CR*(1-DRNN01_CR)/2500,
-               DRNN01_CR + DRNN01_CR*(1-DRNN01_CR)/2500) # confidence interval for the CR
+DRNN01_CI <- CI(DRNN01_CR)
 
 DRNN00_avg_props <- unlist(lapply(population4_response90, function(x){unlist(x[[2]][[3]])}))
 DRNN00_avg_props <- t(matrix(DRNN00_avg_props, nrow = 5)) # every column is one outcome category
@@ -168,8 +159,7 @@ SE_DRNN00 <- t(matrix(SE_DRNN00, nrow = 5)) # every column is one outcome catego
 DRNN00_ASE <- colMeans(SE_DRNN00) # average standard errors
 within_DRNN00 <- unlist(lapply(population4_response90, function(x){unlist(x[[2]][[9]])}))
 DRNN00_CR <- sum(within_DRNN00)/2500 # coverage rate
-DRNN00_CI <- c(DRNN00_CR - DRNN00_CR*(1-DRNN00_CR)/2500,
-               DRNN00_CR + DRNN00_CR*(1-DRNN00_CR)/2500) # confidence interval for the CR
+DRNN00_CI <- CI(DRNN00_CR)
 
 ### MICE ###
 
@@ -181,8 +171,7 @@ SE_MICE0 <- t(matrix(SE_MICE0, nrow = 5)) # every column is one outcome category
 MICE0_ASE <- colMeans(SE_MICE0) # average standard errors
 within_MICE0 <- unlist(lapply(population4_response90, function(x){unlist(x[[3]][[3]])}))
 MICE0_CR <- sum(within_MICE0)/2500 # coverage rate
-MICE0_CI <- c(MICE0_CR - MICE0_CR*(1-MICE0_CR)/2500,
-               MICE0_CR + MICE0_CR*(1-MICE0_CR)/2500) # confidence interval for the CR
+MICE0_CI <- CI(MICE0_CR)
 
 results_S2pop4res90 <- list(original_proportions, 
                           MRNN10_AEP, MRNN10_ASE, MRNN10_CR, MRNN10_CI,
