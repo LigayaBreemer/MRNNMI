@@ -10,7 +10,7 @@ load("~/SSLBS/Thesis/Thesis/pop1.RData")
 original_proportions <- table(population$y)/nrow(population)
 
 # function for calculating confidence intervals of the coverage rates
-CI <- function(x) c(x - 1.96*sqrt(x*(1-x)/2500), x + 1.96*sqrt(x*(1-x)/2500))
+CI <- function(x) c(x - 1.96*sqrt(x*(1-x)/1500), x + 1.96*sqrt(x*(1-x)/1500))
 
 ### MRNNI ###
 MRNNI5_avg_props <- unlist(lapply(population1_response80, function(x){unlist(x[[1]][[1]])}))
