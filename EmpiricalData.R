@@ -1,6 +1,7 @@
 library(tidyverse)
 library(nnet)
 library(car)
+library(boot)
 #library(haven)
 #AD000091N01V01P2016ANAV1 <- read_sav("\\\\CBSP.NL\\Productie\\Secundair\\MPOnderzoek_SEC1\\Input\\AD000091N01V01P2016ANAV1.SAV")
 #save(AD000091N01V01P2016ANAV1, file = "\\\\CBSP.NL\\Productie\\Secundair\\MPOnderzoek_SEC1\\Werk\\Ligaya Breemer\\EBB2016")
@@ -45,7 +46,20 @@ sum(my_sample$REDU==1)/500
 save(my_sample, file = "\\\\CBSP.NL\\Productie\\Secundair\\MPOnderzoek_SEC1\\Werk\\Ligaya Breemer\\my_sample")
 load("\\\\CBSP.NL\\Productie\\Secundair\\MPOnderzoek_SEC1\\Werk\\Ligaya Breemer\\my_sample")
 
-# Model selection: outcome model
+# Frequencies
+
+mean(my_sample$LFT1SEPT)
+mean(my_sample$EBBPB8URENWERK)
+
+table(my_sample$EBBHHBBURGST)
+attr(my_sample$EBBHHBBURGST, "labels")
+table(my_sample$OPLNIVSOI2016AGG2HB)
+attr(my_sample$OPLNIVSOI2016AGG2HB, "labels")
+table(my_sample$ETNGRP)
+attr(my_sample$ETNGRP, "labels")
+
+
+### Model selection: outcome model #############################################
 set.seed(1104)
 mod1 <- multinom(OPLNIVSOI2016AGG2HB ~ LFT1SEPT + EBBHHBGESLACHT + EBBHHBBURGST + 
                    ETNGRP + EBBPB8URENWERK, 
@@ -94,7 +108,7 @@ mod5 <- step(mod1, OPLNIVSOI2016AGG2HB ~ LFT1SEPT + EBBHHBGESLACHT +
                EBBHHBBURGST:EBBPB8URENWERK + ETNGRP:EBBPB8URENWERK)
 # Models 3, 4, and 5 are selected
 
-# Model selection: missingness model
+### Model selection: missingness model #########################################
 
 mod6 <- glm(REDU ~ LFT1SEPT + EBBHHBGESLACHT + EBBHHBBURGST + ETNGRP + 
               EBBPB8URENWERK + LFT1SEPT:EBBHHBGESLACHT + LFT1SEPT:EBBHHBBURGST +
@@ -148,7 +162,7 @@ mod11$call
 mod11$aic
 # Models 7 and 11 are selected for imputation
 
-# Imputation
+##### Imputation ###############################################################
 
 # function to calculate the 95% confidence intervals.
 # each row contains the lower and upper bound for one outcome category.
@@ -164,12 +178,6 @@ CI <- function(proportion, SE){
 distance <- function(pred.i, pred.j){
   omega <- 1 / length(pred.i)
   sqrt(sum(omega * (pred.i - pred.j)^2))
-}
-
-# SE using Rubin's rules with as input one ROW of the proportions matrix.
-standard_error <- function(proportions, M, n){
-  sqrt(1/M * sum(proportions*(1 - proportions)/n) + (1 + 1/M) / (M - 1) * 
-         sum((proportions - mean(proportions))^2))
 }
 
 MRNNMI <- function(iterations, samp){
@@ -325,9 +333,11 @@ set.seed(1229)
 imputed_data <- lapply(1:5, MRNNMI, my_sample)
 save(imputed_data, file = "\\\\CBSP.NL\\Productie\\Secundair\\MPOnderzoek_SEC1\\Werk\\Ligaya Breemer\\imputed_data")
 
-# Analysis
+#### Analysis ##################################################################
 # Restart the R session here, else tidyverse will change the data frames into
 # tibbles and the function unique() will output a tibble instead of a vector.
+
+### Proportions ################################################################
 # Calculate the aggregate-level proportions for the original sample
 categories <- unique(original_sample[, 7])
 original_aggregate <- sapply(categories, FUN = function(x){
@@ -403,7 +413,521 @@ rbind(original_men, imputed_men, original_women, imputed_women)
 sum(abs(original_men - imputed_men))/6
 sum(abs(original_women - imputed_women))/6
 
-# SEs
+### Standard Errors ############################################################
+
+# SE using Rubin's rules with as input one ROW of the proportions matrix.
+standard_error <- function(proportions, M, n){
+  sqrt(1/M * sum(proportions*(1-proportions)/n) + (1 + 1/M) / (M - 1) * 
+         sum((proportions - mean(proportions))^2))
+}
+
+# SE using Rubin's rules + bootstrap within variance with as input one ROW of
+# the proportions matrix and the within variance of each imputed data set.
+SE_bootW <- function(proportions, within_var, M){
+  sqrt(1/M * sum(within_var) + (1 + 1/M) / (M - 1) * 
+         sum((proportions - mean(proportions))^2))
+}
+
+# SE using Rubin's rules + bootstrap variances with as input the within variance
+# of each imputed data set and the between variance.
+SE_boot <- function(within_var, between_var, M){
+  sqrt(1/M * sum(within_var) + (1 + 1/M) / (M - 1) * between_var)
+}
+
+# SE calculated using Rubin's rules, no bootstrap #
 SE_aggregate <- apply(imputed_aggregates, 1, standard_error, 5, 500)
 SE_men <- apply(imputed_mens, 1, standard_error, 5, 258)
 SE_women <- apply(imputed_womens, 1, standard_error, 5, 242)
+
+
+# SE calculated using Rubin's rules, bootstrap within-variance #
+
+# Aggregate level
+# First, the number of bootstrap repetitions is determined by increasing the
+# number of repetitions until convergence.
+set.seed(1105)
+b200 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 200, stype = "i")
+mean(b200$t)
+
+b300 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 300, stype = "i")
+mean(b300$t)
+
+b400 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 400, stype = "i")
+mean(b400$t)
+
+b500 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 500, stype = "i")
+mean(b500$t)
+
+b600 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 600, stype = "i")
+mean(b600$t)
+
+b700 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 700, stype = "i")
+mean(b700$t)
+
+b800 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 800, stype = "i")
+mean(b800$t)
+
+b900 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 900, stype = "i")
+mean(b900$t)
+
+b1000 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1000, stype = "i")
+mean(b1000$t)
+
+b1100 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1100, stype = "i")
+mean(b1100$t)
+
+b1200 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1200, stype = "i")
+mean(b1200$t) # no longer accuracte up to 5 decimal points?
+
+b1300 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1300, stype = "i")
+mean(b1300$t)
+
+b1400 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1400, stype = "i")
+mean(b1400$t) # new stability?
+
+b1500 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1500, stype = "i")
+mean(b1500$t)
+
+b1600 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1600, stype = "i")
+mean(b1600$t)
+
+b1700 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1700, stype = "i")
+mean(b1700$t)
+
+b1800 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1800, stype = "i")
+mean(b1800$t)
+
+b1900 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 1900, stype = "i")
+mean(b1900$t)
+
+b2000 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  c <- unique(new_dat[,7])[1]
+  indicator <- new_dat[,7] == c
+  weights <- new_dat[indicator, 6]
+  p <- sum(weights)/sum(new_dat[,6])
+  p*(1-p)/500
+}, R = 2000, stype = "i")
+mean(b2000$t)
+# After R= 1500, all estimate are appr. .000364-.000366
+
+# Now calculate the bootstrap estimates of the variances for each category and
+# each imputed data set
+B1 <- boot(imputed_data[[1]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var1 <- colMeans(B1$t)
+
+B2 <- boot(imputed_data[[2]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var2 <- colMeans(B2$t)
+
+B3 <- boot(imputed_data[[3]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var3 <- colMeans(B3$t)
+
+B4 <- boot(imputed_data[[4]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var4 <- colMeans(B4$t)
+
+B5 <- boot(imputed_data[[5]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var5 <- colMeans(B5$t)
+within_var <- rbind(within_var1, within_var2, within_var3, within_var4, 
+                    within_var5)
+SEbootW_aggregate <- numeric(6)
+for(i in 1:6){
+  SEbootW_aggregate[i] <- SE_bootW(imputed_aggregates[i,], within_var[,i], 5)
+}
+
+# Domain level
+# Men
+set.seed(1605)
+B1_men <- boot(imputed_dom1[[1]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var1_men <- colMeans(B1_men$t)
+
+B2_men <- boot(imputed_dom1[[2]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var2_men <- colMeans(B2_men$t)
+
+B3_men <- boot(imputed_dom1[[3]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var3_men <- colMeans(B3_men$t)
+
+B4_men <- boot(imputed_dom1[[4]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var4_men <- colMeans(B4_men$t)
+
+B5_men <- boot(imputed_dom1[[5]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var5_men <- colMeans(B5_men$t)
+within_var_men <- rbind(within_var1_men, within_var2_men, within_var3_men, 
+                        within_var4_men, within_var5_men)
+SEbootW_men <- numeric(6)
+for(i in 1:6){
+  SEbootW_men[i] <- SE_bootW(imputed_mens[i,], within_var_men[,i], 5)
+}
+
+# Women
+B1_women <- boot(imputed_dom2[[1]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var1_women <- colMeans(B1_women$t)
+
+B2_women <- boot(imputed_dom2[[2]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var2_women <- colMeans(B2_women$t)
+
+B3_women <- boot(imputed_dom2[[3]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var3_women <- colMeans(B3_women$t)
+
+B4_women <- boot(imputed_dom2[[4]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var4_women <- colMeans(B4_women$t)
+
+B5_women <- boot(imputed_dom2[[5]], function(x, i){
+  new_dat <- x[i,]
+  categories <- unique(x[, 7])
+  sapply(categories, function(y){
+    indicator <- new_dat[,7] == y
+    weights <- new_dat[indicator, 6]
+    p <- sum(weights)/sum(new_dat[,6])
+    p*(1-p)/500
+  })
+}, R=1500, stype = "i")
+within_var5_women <- colMeans(B5_women$t)
+within_var_women <- rbind(within_var1_women, within_var2_women, within_var3_women, 
+                        within_var4_women, within_var5_women)
+SEbootW_women <- numeric(6)
+for(i in 1:6){
+  SEbootW_women[i] <- SE_bootW(imputed_womens[i,], within_var_women[,i], 5)
+}
+
+# SE using Rubin's rules with bootstrap variances.
+# Aggregate level
+# First, the number of bootstraps has to be determined again.
+set.seed(1257)
+b200 <- boot(imputed_aggregates[1,], function(x, i){sum((x[i] - mean(x[i]))^2)}, 
+          R=200, stype = "i")
+mean(b200$t)
+
+b300 <- boot(imputed_aggregates[1,], function(x, i){sum((x[i] - mean(x[i]))^2)}, 
+             R=300, stype = "i")
+mean(b300$t)
+
+b400 <- boot(imputed_aggregates[1,], function(x, i){sum((x[i] - mean(x[i]))^2)}, 
+             R=400, stype = "i")
+mean(b400$t)
+
+b500 <- boot(imputed_aggregates[1,], function(x, i){sum((x[i] - mean(x[i]))^2)}, 
+             R=500, stype = "i")
+mean(b500$t)
+
+b600 <- boot(imputed_aggregates[1,], function(x, i){sum((x[i] - mean(x[i]))^2)}, 
+             R=600, stype = "i")
+mean(b600$t)
+
+b700 <- boot(imputed_aggregates[1,], function(x, i){sum((x[i] - mean(x[i]))^2)}, 
+             R=700, stype = "i")
+mean(b700$t)
+
+b800 <- boot(imputed_aggregates[1,], function(x, i){sum((x[i] - mean(x[i]))^2)}, 
+             R=800, stype = "i")
+mean(b800$t)
+# After 500 bootstraps the estimate seems to converge around .000340.
+
+B <- boot(t(imputed_aggregates), function(x, i){
+  new_dat <- x[i,]
+  apply(new_dat, 2, function(y){
+    sum((y - mean(y))^2)
+  })
+}, R=500, stype = "i")
+
+between_var <- colMeans(B$t)
+
+SEboot_aggregate <- numeric(6)
+for(i in 1:6){
+  SEboot_aggregate[i] <- SE_boot(within_var[,i], between_var[i], 5)
+}
+
+# Domain level
+# Men
+
+B_men <- boot(t(imputed_mens), function(x, i){
+  new_dat <- x[i,]
+  apply(new_dat, 2, function(y){
+    sum((y - mean(y))^2)
+  })
+}, R=500, stype = "i")
+
+between_var_men <- colMeans(B_men$t)
+
+SEboot_men <- numeric(6)
+for(i in 1:6){
+  SEboot_men[i] <- SE_boot(within_var_men[,i], between_var_men[i], 5)
+}
+
+# Women
+
+B_women <- boot(t(imputed_womens), function(x, i){
+  new_dat <- x[i,]
+  apply(new_dat, 2, function(y){
+    sum((y - mean(y))^2)
+  })
+}, R=500, stype = "i")
+
+between_var_women <- colMeans(B_women$t)
+
+SEboot_women <- numeric(6)
+for(i in 1:6){
+  SEboot_women[i] <- SE_boot(within_var_women[,i], between_var_women[i], 5)
+}
+
+# Compare 
+
+SE_aggregate
+SEboot_aggregate
+
+SE_men
+SEboot_men
+
+SE_women
+SEboot_women
