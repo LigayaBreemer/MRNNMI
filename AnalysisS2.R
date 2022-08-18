@@ -88,10 +88,10 @@ MICE0_CI <- CI(MICE0_CR)
 
 results_S2pop4res80 <- list(original_proportions, 
                           MRNN10_AEP, MRNN10_ASE, MRNN10_CR, MRNN10_CI,
-                          MRNN01_AEP, MRNN01_ASE, MRNN01_CR, MRNN01_CI
-                          MRNN00_AEP, MRNN00_ASE, MRNN00_CR, MRNN00_CI
-                          DRNN10_AEP, DRNN10_ASE, DRNN10_CR, DRNN10_CI
-                          DRNN01_AEP, DRNN01_ASE, DRNN01_CR, DRNN01_CI
+                          MRNN01_AEP, MRNN01_ASE, MRNN01_CR, MRNN01_CI,
+                          MRNN00_AEP, MRNN00_ASE, MRNN00_CR, MRNN00_CI,
+                          DRNN10_AEP, DRNN10_ASE, DRNN10_CR, DRNN10_CI,
+                          DRNN01_AEP, DRNN01_ASE, DRNN01_CR, DRNN01_CI,
                           DRNN00_AEP, DRNN00_ASE, DRNN00_CR, DRNN00_CI,
                           MICE0_AEP, MICE0_ASE, MICE0_CR, MICE0_CI)
 save(results_S2pop4res80, file = "results_S2pop4res80.RData")
@@ -175,10 +175,10 @@ MICE0_CI <- CI(MICE0_CR)
 
 results_S2pop4res90 <- list(original_proportions, 
                           MRNN10_AEP, MRNN10_ASE, MRNN10_CR, MRNN10_CI,
-                          MRNN01_AEP, MRNN01_ASE, MRNN01_CR, MRNN01_CI
-                          MRNN00_AEP, MRNN00_ASE, MRNN00_CR, MRNN00_CI
-                          DRNN10_AEP, DRNN10_ASE, DRNN10_CR, DRNN10_CI
-                          DRNN01_AEP, DRNN01_ASE, DRNN01_CR, DRNN01_CI
+                          MRNN01_AEP, MRNN01_ASE, MRNN01_CR, MRNN01_CI,
+                          MRNN00_AEP, MRNN00_ASE, MRNN00_CR, MRNN00_CI,
+                          DRNN10_AEP, DRNN10_ASE, DRNN10_CR, DRNN10_CI,
+                          DRNN01_AEP, DRNN01_ASE, DRNN01_CR, DRNN01_CI,
                           DRNN00_AEP, DRNN00_ASE, DRNN00_CR, DRNN00_CI,
                           MICE0_AEP, MICE0_ASE, MICE0_CR, MICE0_CI)
 save(results_S2pop4res90, file = "results_S2pop4res90.RData")
