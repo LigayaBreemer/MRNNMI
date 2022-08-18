@@ -111,7 +111,7 @@ results_pop1res80 <- list(original_proportions,
                           MRNNI20_AEP, MRNNI20_ASE, MRNNI20_CR, MRNNI20_CI,
                           DRNNI5_AEP, DRNNI5_ASE, DRNNI5_CR, DRNNI5_CI,
                           DRNNI10_AEP, DRNNI10_ASE, DRNNI10_CR, DRNNI10_CI,
-                          DRNNI20_AEP, DRNNI20_ASE, DRNNI20_CR, DRNNI20_CI
+                          DRNNI20_AEP, DRNNI20_ASE, DRNNI20_CR, DRNNI20_CI,
                           MICE5_AEP, MICE5_ASE, MICE5_CR, MICE5_CI,
                           MICE10_AEP, MICE10_ASE, MICE10_CR, MICE10_CI,
                           MICE20_AEP, MICE20_ASE, MICE20_CR, MICE20_CI)
@@ -219,7 +219,7 @@ results_pop1res90 <- list(original_proportions,
                           MRNNI20_AEP, MRNNI20_ASE, MRNNI20_CR, MRNNI20_CI,
                           DRNNI5_AEP, DRNNI5_ASE, DRNNI5_CR, DRNNI5_CI,
                           DRNNI10_AEP, DRNNI10_ASE, DRNNI10_CR, DRNNI10_CI,
-                          DRNNI20_AEP, DRNNI20_ASE, DRNNI20_CR, DRNNI20_CI
+                          DRNNI20_AEP, DRNNI20_ASE, DRNNI20_CR, DRNNI20_CI,
                           MICE5_AEP, MICE5_ASE, MICE5_CR, MICE5_CI,
                           MICE10_AEP, MICE10_ASE, MICE10_CR, MICE10_CI,
                           MICE20_AEP, MICE20_ASE, MICE20_CR, MICE20_CI)
