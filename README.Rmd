@@ -19,6 +19,9 @@ This `R` script contains the code that was used to analyze the output from *SIM2
 *EmpiricalData.R*
 This `R` script contains the code that was used to conduct the empirical data study. The Labor Force Survey data that was used in this example is confidential and therefore not publicly available. Upon request, legitimate researchers can be granted access to the data.
 
+*MRNNMI_fun.R*
+This `R` script contains a function that applies MRNNMI to a dataframe and returns imputated data sets. 
+
 *PILOT_STUDY.R*
 This `R` script contains the data generation code as well as the code for the first half of the simulation study (excluding analysis of the output).
 
